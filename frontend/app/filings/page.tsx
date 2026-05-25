@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import FilingCard from "@/components/FilingCard";
 
-const AGENT_API = process.env.NEXT_PUBLIC_AGENT_API_URL || "http://localhost:8080";
 const FUNDS = ["All", "ADIA", "PIF", "QIA", "MUBADALA"];
 const FORMS = ["All", "SC 13D", "SC 13G", "SC 13D/A", "SC 13G/A"];
 
@@ -19,7 +18,7 @@ export default function FilingsPage() {
       try {
         const params = new URLSearchParams({ limit: "100" });
         if (selectedFund !== "All") params.set("fund", selectedFund);
-        const res = await fetch(`${AGENT_API}/api/filings?${params}`);
+        const res = await fetch(`/api/filings?${params}`);
         if (res.ok) setFilings(await res.json());
       } catch {}
       setLoading(false);

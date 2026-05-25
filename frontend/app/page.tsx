@@ -20,7 +20,7 @@ export default function DashboardPage() {
   async function fetchData() {
     try {
       const [filingsRes, briefsRes, fundsRes] = await Promise.all([
-        fetch(`${AGENT_API}/api/filings?limit=10`),
+        fetch(`${AGENT_API}/api/filings?limit=28`),
         fetch(`${AGENT_API}/api/intelligence?limit=3`),
         fetch(`${AGENT_API}/api/funds`),
       ]);
@@ -44,7 +44,7 @@ export default function DashboardPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: "Monitor SEC EDGAR for new Gulf SWF 13D/13G filings from the past 30 days. Parse, store in MongoDB, and generate an intelligence brief.",
+          message: "Fetch recent SEC filings from Gulf SWFs and store them in MongoDB",
         }),
       });
       const data = await res.json();
@@ -83,9 +83,9 @@ export default function DashboardPage() {
       {/* Hero stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Filings", value: filings.length || "—" },
-          { label: "Active SWFs", value: funds.length || 4 },
-          { label: "Intelligence Briefs", value: briefs.length || "—" },
+          { label: "Total Filings", value: loading ? "…" : filings.length || 0 },
+          { label: "Active SWFs", value: 4 },
+          { label: "Intelligence Briefs", value: loading ? "…" : briefs.length || 0 },
           { label: "Latest Filing", value: filings[0]?.filing_date || "—" },
         ].map((stat) => (
           <div key={stat.label} className="card text-center">
