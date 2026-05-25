@@ -15,11 +15,14 @@ _client: Optional[genai.Client] = None
 def _get_client() -> genai.Client:
     global _client
     if _client is None:
-        _client = genai.Client(
-            vertexai=True,
-            project=os.getenv("GOOGLE_CLOUD_PROJECT"),
-            location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1"),
-        )
+        if os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "0") == "1":
+            _client = genai.Client(
+                vertexai=True,
+                project=os.getenv("GOOGLE_CLOUD_PROJECT"),
+                location=os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1"),
+            )
+        else:
+            _client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
     return _client
 
 
@@ -43,7 +46,7 @@ def _fetch_filings_from_mongo(fund: Optional[str], days: int) -> list:
 
 async def generate_intelligence_brief(
     fund: str = "",
-    days: int = 30,
+    days: int = 730,
 ) -> str:
     """
     Queries MongoDB for recent parsed Gulf SWF filings and uses Gemini to

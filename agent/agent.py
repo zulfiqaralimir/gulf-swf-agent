@@ -1,22 +1,17 @@
-import os
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
 
-from mongodb_mcp.mongodb_client import get_mongodb_mcp_toolset
 from tools.edgar_monitor import fetch_recent_filings
 from tools.filing_parser import parse_filing_document
 from tools.gemini_analyst import generate_intelligence_brief, parse_filing_with_gemini
-
+from tools.mongodb_tools import fetch_and_store_filings, store_filing, store_brief
 
 
 def create_swf_agent() -> Agent:
     """Creates and returns the Gulf SWF Intelligence ADK Agent."""
-
-    mongodb_toolset = get_mongodb_mcp_toolset(os.getenv("MONGODB_URI"))
-
     return Agent(
         name="gulf_swf_intelligence_agent",
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         description=(
             "An intelligence agent that monitors SEC EDGAR for Gulf Sovereign "
             "Wealth Fund 13D/13G filings, stores structured data in MongoDB, "
@@ -26,34 +21,29 @@ def create_swf_agent() -> Agent:
 You are a financial intelligence agent specializing in Gulf Sovereign Wealth Fund
 (SWF) SEC filings analysis. The SWFs you monitor are ADIA, PIF, QIA, and Mubadala.
 
-PRIMARY WORKFLOW (when asked to monitor or run):
-1. Call fetch_recent_filings to discover new 13D/13G filings (default: last 30 days)
-2. For each filing, call parse_filing_document to extract structured fields
-3. If parse result has needs_gemini_parse=true, call parse_filing_with_gemini as fallback
-4. Store each parsed filing in MongoDB using the insertOne MCP tool
-   - Collection: filings
-   - Use upsert on accession_number to avoid duplicates
-5. Call generate_intelligence_brief with all parsed filings
-6. Store the brief in MongoDB intelligence collection using insertOne
-7. Return a concise summary: filings found, key positions, top brief highlights
+PRIMARY WORKFLOW (when asked to fetch, monitor, or run):
+1. Call fetch_and_store_filings(days_back=730) — this fetches all SWF filings from
+   SEC EDGAR, parses them, and stores them in MongoDB in a single step.
+2. Call generate_intelligence_brief() — reads MongoDB and produces a Gemini analysis.
+3. Call store_brief(brief_text=<the full brief text>, filing_count=<int from step 1>,
+   funds_covered="ADIA,PIF,QIA,MUBADALA")
+4. Return the full intelligence brief to the user.
 
-QUERY WORKFLOW (when asked about past data):
-- Use MongoDB find and aggregate MCP tools to query stored data
-- Filter by fund name, date range, form_type, or issuer_name as appropriate
-- Synthesize findings into clear, actionable intelligence
-- Always cite the specific filing (fund, date, form type) for each claim
+QUERY WORKFLOW (when asked about past data or specific positions):
+- Call generate_intelligence_brief(fund="ADIA") or similar to answer questions.
+- Always cite the specific filing (fund, date, form type) for each claim.
 
 RULES:
-- Respect SEC EDGAR rate limits — fetch_recent_filings enforces 150ms between requests
-- Always persist data before generating analysis
-- Flag parse failures; do not silently drop filings
-- Never fabricate filing data — only report what is in the stored records
+- Always run fetch_and_store_filings before generate_intelligence_brief.
+- Never fabricate filing data — only report what is in stored records.
 """,
         tools=[
+            FunctionTool(fetch_and_store_filings),
+            FunctionTool(generate_intelligence_brief),
+            FunctionTool(store_brief),
             FunctionTool(fetch_recent_filings),
             FunctionTool(parse_filing_document),
-            FunctionTool(generate_intelligence_brief),
             FunctionTool(parse_filing_with_gemini),
-            mongodb_toolset,
+            FunctionTool(store_filing),
         ],
     )

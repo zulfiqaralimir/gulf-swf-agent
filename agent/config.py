@@ -25,4 +25,4 @@ FILINGS_COLLECTION = "filings"
 INTELLIGENCE_COLLECTION = "intelligence"
 FUNDS_COLLECTION = "funds"
 
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-2.5-flash"
