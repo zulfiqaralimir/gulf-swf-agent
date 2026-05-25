@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SWF_CIKS = {
-    "ADIA":     "0001393818",
-    "PIF":      "0001756699",
-    "QIA":      "0001346830",
-    "MUBADALA": "0001512673",
+    "ADIA":     "0001362558",   # Abu Dhabi Investment Authority
+    "PIF":      "0001767640",   # Public Investment Fund (Saudi Arabia)
+    "QIA":      "0001441449",   # Qatar Investment Authority
+    "MUBADALA": "0001704268",   # Mubadala Investment Co PJSC
 }
 
 MONGODB_URI = os.getenv("MONGODB_URI")

@@ -13,7 +13,7 @@ EDGAR_HEADERS = {
 TARGET_FORMS = {"SC 13D", "SC 13G", "SC 13D/A", "SC 13G/A"}
 
 
-async def fetch_recent_filings(days_back: int = 30) -> List[Dict]:
+async def fetch_recent_filings(days_back: int = 730) -> List[Dict]:
     """
     Fetches recent 13D/13G filings from all target Gulf SWFs via the
     SEC EDGAR submissions API. No authentication required.

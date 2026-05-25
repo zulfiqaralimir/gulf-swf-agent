@@ -13,11 +13,12 @@ from agent import create_swf_agent
 
 # Lazy-init agent at startup
 _runner: Runner | None = None
+session_service: InMemorySessionService | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _runner
+    global _runner, session_service
     agent = create_swf_agent()
     session_service = InMemorySessionService()
     _runner = Runner(
@@ -54,6 +55,18 @@ async def run_agent(request: AgentRequest):
     if _runner is None:
         raise HTTPException(status_code=503, detail="Agent not initialized")
     try:
+        # Create session if it doesn't exist
+        existing = await session_service.get_session(
+            app_name="gulf_swf_agent",
+            user_id="user",
+            session_id=request.session_id,
+        )
+        if existing is None:
+            await session_service.create_session(
+                app_name="gulf_swf_agent",
+                user_id="user",
+                session_id=request.session_id,
+            )
         content = types.Content(
             role="user",
             parts=[types.Part(text=request.message)],

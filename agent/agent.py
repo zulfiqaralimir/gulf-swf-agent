@@ -2,10 +2,11 @@ import os
 from google.adk.agents import Agent
 from google.adk.tools import FunctionTool
 
-from mcp.mongodb_client import get_mongodb_mcp_toolset
+from mongodb_mcp.mongodb_client import get_mongodb_mcp_toolset
 from tools.edgar_monitor import fetch_recent_filings
 from tools.filing_parser import parse_filing_document
 from tools.gemini_analyst import generate_intelligence_brief, parse_filing_with_gemini
+
 
 
 def create_swf_agent() -> Agent:

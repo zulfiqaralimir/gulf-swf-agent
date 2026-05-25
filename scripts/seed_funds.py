@@ -5,7 +5,7 @@ Run once after setting up MongoDB Atlas:
 """
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../agent"))
 
@@ -70,7 +70,7 @@ def seed():
     col = db["funds"]
 
     for fund in FUNDS:
-        fund["updated_at"] = datetime.utcnow().isoformat()
+        fund["updated_at"] = datetime.now(UTC).isoformat()
         result = col.update_one({"name": fund["name"]}, {"$set": fund}, upsert=True)
         action = "inserted" if result.upserted_id else "updated"
         print(f"  {action}: {fund['name']} — {fund['full_name']}")
