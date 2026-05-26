@@ -1,5 +1,7 @@
 # Gulf SWF Filing Intelligence Agent
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 > **Google Cloud Rapid Agent Hackathon — MongoDB Track**
 > Built by Zulfiqar Ali Mir — Black Iron Quantum AI (Private) Limited
 
